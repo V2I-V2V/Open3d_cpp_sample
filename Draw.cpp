@@ -25,8 +25,16 @@
 // ----------------------------------------------------------------------------
 
 #include <string>
+#include <vector>
+#include <armadillo>
+#include <chrono>
 
 #include "open3d/Open3D.h"
+
+using namespace std;
+using namespace open3d;
+
+#define CurrTimeMS (std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count())
 
 int main(int argc, char *argv[]) {
     if (argc == 2) {
@@ -37,9 +45,29 @@ int main(int argc, char *argv[]) {
         }
     }
 
-    auto sphere = open3d::geometry::TriangleMesh::CreateSphere(1.0);
-    sphere->ComputeVertexNormals();
-    sphere->PaintUniformColor({0.0, 1.0, 0.0});
-    open3d::visualization::DrawGeometries({sphere});
+    // auto sphere = open3d::geometry::TriangleMesh::CreateSphere(1.0);
+    // sphere->ComputeVertexNormals();
+    // sphere->PaintUniformColor({0.0, 1.0, 0.0});
+    // // open3d::visualization::DrawGeometries({sphere});
+
+    auto pcd0 = io::CreatePointCloudFromFile("pos0.txt", "xyz", true);
+    auto pcd1 = io::CreatePointCloudFromFile("pos1.txt", "xyz", true);
+
+    auto points = pcd0->points_;
+    cout << points.size() << endl;
+
+    long t1 = CurrTimeMS;
+
+    auto rr = pipelines::registration::RegistrationICP(*pcd0, *pcd1, 2, 
+                                        Eigen::MatrixBase<Eigen::Matrix4d>::Identity(), 
+                                        open3d::pipelines::registration::TransformationEstimationPointToPoint(false), 
+                                        open3d::pipelines::registration::ICPConvergenceCriteria());
+
+    long t2 = CurrTimeMS;
+    std::cout << "it took me " << t2-t1 << " ms.\n";
+
+
+    cout << rr.transformation_ << endl;
+
     return 0;
 }
