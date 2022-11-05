@@ -9,7 +9,7 @@ find_package(Open3D REQUIRED)
 
 find_package(Armadillo REQUIRED)
 
-add_executable(Draw)
-target_sources(Draw PRIVATE Draw.cpp)
-target_link_libraries(Draw PRIVATE Open3D::Open3D ${ARMADILLO_LIBRARIES})
+add_executable(ICP)
+target_sources(ICP PRIVATE ICP.cpp)
+target_link_libraries(ICP PRIVATE Open3D::Open3D ${ARMADILLO_LIBRARIES})
 

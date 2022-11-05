@@ -30,6 +30,7 @@
 #include <chrono>
 
 #include "open3d/Open3D.h"
+#include <Eigen/StdVector>
 
 using namespace std;
 using namespace open3d;
@@ -45,16 +46,14 @@ int main(int argc, char *argv[]) {
         }
     }
 
-    // auto sphere = open3d::geometry::TriangleMesh::CreateSphere(1.0);
-    // sphere->ComputeVertexNormals();
-    // sphere->PaintUniformColor({0.0, 1.0, 0.0});
-    // // open3d::visualization::DrawGeometries({sphere});
+    auto pcd0 = io::CreatePointCloudFromFile("../data/prevf.txt", "xyz", true);
+    auto pcd1 = io::CreatePointCloudFromFile("../data/nextf.txt", "xyz", true);
 
-    auto pcd0 = io::CreatePointCloudFromFile("pos0.txt", "xyz", true);
-    auto pcd1 = io::CreatePointCloudFromFile("pos1.txt", "xyz", true);
+    // auto pcd0 = io::CreatePointCloudFromFile("../data/pos0.txt", "xyz", true);
+    // auto pcd1 = io::CreatePointCloudFromFile("../data/pos1.txt", "xyz", true);
 
-    auto points = pcd0->points_;
-    cout << points.size() << endl;
+    cout << "pcd0 size: " << pcd0->points_.size() << endl;
+    cout << "pcd1 size: " << pcd1->points_.size() << endl;
 
     long t1 = CurrTimeMS;
 
@@ -64,8 +63,7 @@ int main(int argc, char *argv[]) {
                                         open3d::pipelines::registration::ICPConvergenceCriteria());
 
     long t2 = CurrTimeMS;
-    std::cout << "it took me " << t2-t1 << " ms.\n";
-
+    std::cout << "icp took " << t2-t1 << " ms.\n";
 
     cout << rr.transformation_ << endl;
 
