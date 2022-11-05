@@ -9,6 +9,10 @@ project:
 For more details, check out the [Open3D repo](https://github.com/intel-isl/Open3D) and
 [Open3D docs](http://www.open3d.org/docs/release/cpp_project.html).
 
+## Step 0: Generate test data:
+
+In `./data`, run `convert2txt.py` to convert `npy` file to readable txt.
+
 ## Step 1: Compile and install Open3D
 
 Follow the [Open3D compilation guide](http://www.open3d.org/docs/release/compilation.html),
@@ -24,23 +28,11 @@ cd Open3D
 mkdir build
 cd build
 cmake -DBUILD_SHARED_LIBS=ON -DCMAKE_INSTALL_PREFIX=${HOME}/open3d_install ..
-make install -j 12
+make install -j
 cd ../..
 ```
 
-On Windows:
-
-```batch
-git clone --recursive https://github.com/intel-isl/Open3D.git
-cd Open3D
-mkdir build
-cd build
-cmake -DBUILD_SHARED_LIBS=ON -DCMAKE_INSTALL_PREFIX=C:\open3d_install ..
-cmake --build . --config Release --parallel 12 --target install
-cd ..\..
-```
-
-Note: `-DBUILD_SHARED_LIBS=ON` is recommended if `-DBUILD_CUDA_MODULE=ON`.
+[Important] Note: `-DBUILD_SHARED_LIBS=ON` is recommended if `-DBUILD_CUDA_MODULE=ON`.
 
 ## Step 2: Use Open3D in this example project
 
@@ -52,17 +44,8 @@ cd open3d-cmake-find-package
 mkdir build
 cd build
 cmake -DOpen3D_ROOT=${HOME}/open3d_install ..
-make -j 12
-./Draw
+make -j
+./ICP
 ```
 
-On Windows:
 
-```batch
-git clone https://github.com/intel-isl/open3d-cmake-find-package.git
-cd open3d-cmake-find-package
-mkdir build
-cmake -DOpen3D_ROOT=C:\open3d_install ..
-cmake --build . --config Release --parallel 12
-Release\Draw
-```
