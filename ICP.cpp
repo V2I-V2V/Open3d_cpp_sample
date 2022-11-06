@@ -37,23 +37,37 @@ using namespace open3d;
 
 #define CurrTimeMS (std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count())
 
-// array size = N*dim
+// // array size = N*dim
+// std::shared_ptr<open3d::geometry::PointCloud> convert2pcd(float *data, size_t N, size_t dim=3) {
+//     assert(dim > 2);
+//     if (dim > 3) {
+//         Eigen::Map<Eigen::MatrixXf> M(data, N, dim);
+//         Eigen::MatrixXf fmat = M.leftCols(3);
+//         Eigen::MatrixXd dmat = fmat.cast<double>();
+//         Eigen::Vector3d *vv = reinterpret_cast<Eigen::Vector3d *>(dmat.data());
+//         vector<Eigen::Vector3d> vvec(vv, vv+N);
+//         return std::make_shared<open3d::geometry::PointCloud>(vvec);
+//     } else {
+//         Eigen::Map<Eigen::VectorXf> fvec(data, N * dim);
+//         Eigen::VectorXd dvec = fvec.cast<double>();
+//         Eigen::Vector3d *vv = reinterpret_cast<Eigen::Vector3d *>(dvec.data());
+//         vector<Eigen::Vector3d> vvec(vv, vv+N);
+//         return std::make_shared<open3d::geometry::PointCloud>(vvec);
+//     }
+// }
+
 std::shared_ptr<open3d::geometry::PointCloud> convert2pcd(float *data, size_t N, size_t dim=3) {
     assert(dim > 2);
-    if (dim > 3) {
-        Eigen::Map<Eigen::MatrixXf> M(data, N, dim);
-        Eigen::MatrixXf fmat = M.leftCols(3);
-        Eigen::MatrixXd dmat = fmat.cast<double>();
-        Eigen::Vector3d *vv = reinterpret_cast<Eigen::Vector3d *>(dmat.data());
-        vector<Eigen::Vector3d> vvec(vv, vv+N);
-        return std::make_shared<open3d::geometry::PointCloud>(vvec);
-    } else {
-        Eigen::Map<Eigen::VectorXf> fvec(data, N * dim);
-        Eigen::VectorXd dvec = fvec.cast<double>();
-        Eigen::Vector3d *vv = reinterpret_cast<Eigen::Vector3d *>(dvec.data());
-        vector<Eigen::Vector3d> vvec(vv, vv+N);
-        return std::make_shared<open3d::geometry::PointCloud>(vvec);
+
+    double * dd = new double[N*3];
+    for (int i = 0; i < N; ++i) {
+        for (int j = 0; j < 3; ++j) {
+            dd[i*3+j] = (double) data[i*dim+j];
+        }
     }
+    Eigen::Vector3d *vv = reinterpret_cast<Eigen::Vector3d *>(dd);
+    vector<Eigen::Vector3d> vvec(vv, vv+N);
+    return std::make_shared<open3d::geometry::PointCloud>(vvec);
 }
 
 int main(int argc, char *argv[]) {
@@ -72,13 +86,14 @@ int main(int argc, char *argv[]) {
     // auto pcd1 = io::CreatePointCloudFromFile("../data/pos1.txt", "xyz", true);
 
     arma::fmat pts(4, 40000, arma::fill::randn);
-    
+    cout << pts.col(39999) << endl;
     float *arr = pts.memptr();
     long t01 = CurrTimeMS;
     // Eigen::Vector3d *vv = reinterpret_cast<Eigen::Vector3d *>(arr);
     // vector<Eigen::Vector3d> vec(vv, vv+40000);
     // geometry::PointCloud pcd(vec);
     auto pcd = convert2pcd(arr, 40000, 4);
+    cout << pcd->points_[39999] << endl;
     long t02 = CurrTimeMS;
     cout << "pcd size: " << pcd->points_.size() << endl;
     std::cout << "pcd init took " << t02-t01 << " ms.\n";
