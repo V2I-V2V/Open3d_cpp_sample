@@ -79,25 +79,17 @@ int main(int argc, char *argv[]) {
         }
     }
 
-    auto pcd0 = io::CreatePointCloudFromFile("../data/prevf.txt", "xyz", true);
-    auto pcd1 = io::CreatePointCloudFromFile("../data/nextf.txt", "xyz", true);
+    // auto pcd0 = io::CreatePointCloudFromFile("../data/prevf.txt", "xyz", true);
+    // auto pcd1 = io::CreatePointCloudFromFile("../data/nextf.txt", "xyz", true);
 
-    // auto pcd0 = io::CreatePointCloudFromFile("../data/pos0.txt", "xyz", true);
-    // auto pcd1 = io::CreatePointCloudFromFile("../data/pos1.txt", "xyz", true);
+    auto pcd0 = io::CreatePointCloudFromFile("../data/pos0.txt", "xyz", true);
+    auto pcd1 = io::CreatePointCloudFromFile("../data/pos1.txt", "xyz", true);
 
-    arma::fmat pts(4, 40000, arma::fill::randn);
-    cout << pts.col(39999) << endl;
-    float *arr = pts.memptr();
-    long t01 = CurrTimeMS;
-    // Eigen::Vector3d *vv = reinterpret_cast<Eigen::Vector3d *>(arr);
-    // vector<Eigen::Vector3d> vec(vv, vv+40000);
-    // geometry::PointCloud pcd(vec);
-    auto pcd = convert2pcd(arr, 40000, 4);
-    cout << pcd->points_[39999] << endl;
-    long t02 = CurrTimeMS;
-    cout << "pcd size: " << pcd->points_.size() << endl;
-    std::cout << "pcd init took " << t02-t01 << " ms.\n";
-    cout << (void *) pcd->points_.data() << endl;
+    // arma::fmat pts0(4, 40000, arma::fill::randn);
+    // arma::fmat pts1(4, 40000, arma::fill::randn);
+    
+    // auto pcd0 = convert2pcd(pts0.memptr(), 40000, 4);
+    // auto pcd1 = convert2pcd(pts1.memptr(), 40000, 4);
 
     cout << "pcd0 size: " << pcd0->points_.size() << endl;
     cout << "pcd1 size: " << pcd1->points_.size() << endl;
