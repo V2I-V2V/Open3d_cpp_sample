@@ -40,23 +40,20 @@ using namespace open3d;
 // array size = N*dim
 std::shared_ptr<open3d::geometry::PointCloud> convert2pcd(float *data, size_t N, size_t dim=3) {
     assert(dim > 2);
-    Eigen::Vector3d *vv;
     if (dim > 3) {
         Eigen::Map<Eigen::MatrixXf> M(data, N, dim);
-        Eigen::VectorXf fvec = M.leftCols(3);
-        Eigen::VectorXd dvec = fvec.cast<double>();
-        vv = reinterpret_cast<Eigen::Vector3d *>(dvec.data());
+        Eigen::MatrixXf fmat = M.leftCols(3);
+        Eigen::MatrixXd dmat = fmat.cast<double>();
+        Eigen::Vector3d *vv = reinterpret_cast<Eigen::Vector3d *>(dmat.data());
+        vector<Eigen::Vector3d> vvec(vv, vv+N);
+        return std::make_shared<open3d::geometry::PointCloud>(vvec);
     } else {
         Eigen::Map<Eigen::VectorXf> fvec(data, N * dim);
         Eigen::VectorXd dvec = fvec.cast<double>();
-        double *dd = dvec.data();
-        cout << dd[N*dim-2] << endl;
-        vv = (Eigen::Vector3d *)(dd);
+        Eigen::Vector3d *vv = reinterpret_cast<Eigen::Vector3d *>(dvec.data());
+        vector<Eigen::Vector3d> vvec(vv, vv+N);
+        return std::make_shared<open3d::geometry::PointCloud>(vvec);
     }
-    cout << vv[N-1] << endl;
-    vector<Eigen::Vector3d> vvec(vv, vv+N);
-    cout << vvec[N-1] << endl;
-    return std::make_shared<open3d::geometry::PointCloud>(vvec);
 }
 
 int main(int argc, char *argv[]) {
@@ -74,19 +71,18 @@ int main(int argc, char *argv[]) {
     // auto pcd0 = io::CreatePointCloudFromFile("../data/pos0.txt", "xyz", true);
     // auto pcd1 = io::CreatePointCloudFromFile("../data/pos1.txt", "xyz", true);
 
-    arma::mat pts(3, 40000, arma::fill::randn);
+    arma::fmat pts(4, 40000, arma::fill::randn);
     
-    double *arr = pts.memptr();
+    float *arr = pts.memptr();
     long t01 = CurrTimeMS;
-    Eigen::Vector3d *vv = reinterpret_cast<Eigen::Vector3d *>(arr);
-    vector<Eigen::Vector3d> vec(vv, vv+40000);
-    geometry::PointCloud pcd(vec);
+    // Eigen::Vector3d *vv = reinterpret_cast<Eigen::Vector3d *>(arr);
+    // vector<Eigen::Vector3d> vec(vv, vv+40000);
+    // geometry::PointCloud pcd(vec);
+    auto pcd = convert2pcd(arr, 40000, 4);
     long t02 = CurrTimeMS;
-    cout << vec[0] << endl;
-    cout << vec[100] << endl;
-    cout << "pcd size: " << pcd.points_.size() << endl;
+    cout << "pcd size: " << pcd->points_.size() << endl;
     std::cout << "pcd init took " << t02-t01 << " ms.\n";
-    cout << (void *) vv << " " << (void *) vec.data() << " " << (void *) pcd.points_.data() << endl;
+    cout << (void *) pcd->points_.data() << endl;
 
     cout << "pcd0 size: " << pcd0->points_.size() << endl;
     cout << "pcd1 size: " << pcd1->points_.size() << endl;
