@@ -58,7 +58,6 @@ using namespace open3d;
 
 std::shared_ptr<open3d::geometry::PointCloud> convert2pcd(float *data, size_t N, size_t dim=3) {
     assert(dim > 2);
-
     double * dd = new double[N*3];
     for (int i = 0; i < N; ++i) {
         for (int j = 0; j < 3; ++j) {
@@ -66,8 +65,13 @@ std::shared_ptr<open3d::geometry::PointCloud> convert2pcd(float *data, size_t N,
         }
     }
     Eigen::Vector3d *vv = reinterpret_cast<Eigen::Vector3d *>(dd);
-    vector<Eigen::Vector3d> vvec(vv, vv+N);
-    return std::make_shared<open3d::geometry::PointCloud>(vvec);
+    long t1 = CurrTimeMS;
+    auto pcd = std::make_shared<open3d::geometry::PointCloud>();
+    pcd->points_.assign(vv, vv+N);
+    delete[] dd;
+    long t2 = CurrTimeMS;
+    std::cout << "PCD init took " << t2-t1 << " ms.\n";
+    return pcd;
 }
 
 int main(int argc, char *argv[]) {
@@ -82,14 +86,14 @@ int main(int argc, char *argv[]) {
     // auto pcd0 = io::CreatePointCloudFromFile("../data/prevf.txt", "xyz", true);
     // auto pcd1 = io::CreatePointCloudFromFile("../data/nextf.txt", "xyz", true);
 
-    auto pcd0 = io::CreatePointCloudFromFile("../data/pos0.txt", "xyz", true);
-    auto pcd1 = io::CreatePointCloudFromFile("../data/pos1.txt", "xyz", true);
+    // auto pcd0 = io::CreatePointCloudFromFile("../data/pos0.txt", "xyz", true);
+    // auto pcd1 = io::CreatePointCloudFromFile("../data/pos1.txt", "xyz", true);
 
-    // arma::fmat pts0(4, 40000, arma::fill::randn);
-    // arma::fmat pts1(4, 40000, arma::fill::randn);
+    arma::fmat pts0(4, 40000, arma::fill::randn);
+    arma::fmat pts1(4, 40000, arma::fill::randn);
     
-    // auto pcd0 = convert2pcd(pts0.memptr(), 40000, 4);
-    // auto pcd1 = convert2pcd(pts1.memptr(), 40000, 4);
+    auto pcd0 = convert2pcd(pts0.memptr(), 40000, 4);
+    auto pcd1 = convert2pcd(pts1.memptr(), 40000, 4);
 
     cout << "pcd0 size: " << pcd0->points_.size() << endl;
     cout << "pcd1 size: " << pcd1->points_.size() << endl;
